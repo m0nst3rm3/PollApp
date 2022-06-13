@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import generic
 from .models import Questions, Choice
+from django.utils import timezone
 
 
 class IndexView(generic.ListView):
@@ -10,13 +11,16 @@ class IndexView(generic.ListView):
     context_object_name = 'latest_question_list'
 
     def get_queryset(self):
-        return Questions.objects.order_by('-published_on')[:5]
+        return Questions.objects.filter(published_on__lte=timezone.now()).order_by('-published_on')[:5]
 
 
 class DetailView(generic.DetailView):
     model = Questions
     context_object_name = 'question'
     template_name = 'Polls/detail.html'
+
+    def get_queryset(self):
+        return Questions.objects.filter(published_on__lte=timezone.now())
 
 
 class ResultsView(generic.DetailView):
